@@ -294,12 +294,7 @@ $("convertBtn").onclick = async () => {
       targetFormat
     });
 
-    history.push(
-      ...converted.map(result => ({
-        ...result,
-        time: Date.now()
-      }))
-    );
+    history.push(...converted);
 
     $("progressBar").style.width = "100%";
     $("progressPct").textContent = "100%";
@@ -485,7 +480,8 @@ document.querySelectorAll(".nav").forEach(button => {
   };
 });
 
-$("clearHistory").onclick = () => {
+$("clearHistory").onclick = async () => {
+  await window.localConvert.clearHistory();
   history = [];
   renderHistory();
   updateStats();
@@ -493,4 +489,11 @@ $("clearHistory").onclick = () => {
 
 setCategory("image");
 renderFiles();
+
+// Load the history saved from earlier sessions.
+window.localConvert.getHistory().then(saved => {
+  history = saved;
+  renderHistory();
+  updateStats();
+});
 renderHistory();
