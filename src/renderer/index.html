@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self' data: file:;
+    img-src 'self' data: file:;
+    style-src 'self';
+    script-src 'self';"
+  >
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+
+  <title>LocalConvert</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" class="icon"><path d="M4 8h13m0 0-3-3m3 3-3 3M20 16H7m0 0 3-3m-3 3 3 3"/></svg>
+      </div>
+      <strong>LocalConvert</strong>
+    </div>
+
+    <nav class="nav-list" aria-label="Sections">
+      <button class="nav active" data-tab="convert">Convert files</button>
+
+      <button class="nav" data-tab="history">
+        <span>Conversion history</span>
+        <b class="badge hidden" id="convertedCount">0</b>
+      </button>
+    </nav>
+  </div>
+
+  <main>
+    <div class="content">
+      <section id="convertView">
+        <div class="workspace">
+          <section class="card files-panel" id="filesPanel">
+            <div class="panel-head">
+              <h2>Files <span class="count" id="queuedCount">0</span></h2>
+            </div>
+
+            <div id="dropZone" class="drop-zone" role="button" tabindex="0"
+                 aria-label="Drop files here or press Enter to browse">
+              <svg viewBox="0 0 24 24" class="icon drop-icon" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+              <div class="drop-text">
+                <strong>Drop files here</strong>
+                <span>or click to browse your computer</span>
+              </div>
+              <small class="drop-types">JPG, PNG, JFIF, HEIC, WEBP &middot; DOC, DOCX, WPS, PDF</small>
+            </div>
+
+            <div class="table-head" aria-hidden="true">
+              <span>File name</span>
+              <span>Size</span>
+              <span>Type</span>
+              <span></span>
+            </div>
+
+            <div id="fileList" class="file-list">
+              <div class="empty">No files added yet.</div>
+            </div>
+
+            <div class="panel-foot">
+              <button class="text-btn" id="clearFiles">Clear list</button>
+            </div>
+          </section>
+
+          <section class="card settings-panel">
+            <div class="panel-head">
+              <h2>Settings</h2>
+            </div>
+
+            <div class="field">
+              <div class="category-toggle" role="group" aria-label="Conversion category">
+                <button class="category active" data-category="image">
+                  <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m21 16-5-5-8 8"/></svg>
+                  <span>Image</span>
+                </button>
+
+                <button class="category" data-category="document">
+                  <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+                  <span>Document</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="format">Format</label>
+              <select id="format">
+                <option value="png">PNG image</option>
+                <option value="jpg">JPG image</option>
+                <option value="webp">WEBP image</option>
+                <option value="pdf">PDF document</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <span class="field-label" id="folderLabel">Save to</span>
+              <div class="folder-box">
+                <svg viewBox="0 0 24 24" class="icon folder-icon" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+
+                <div class="folder-info">
+                  <strong id="outputName">No folder selected</strong>
+                </div>
+
+                <button class="btn secondary compact" id="chooseOutput" aria-labelledby="folderLabel">
+                  Choose
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-end">
+              <div class="progress-wrap hidden" id="progressWrap">
+                <div class="progress-text">
+                  <span id="progressText">Processing&hellip;</span>
+                  <span id="progressPct">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div id="progressBar"></div>
+                </div>
+              </div>
+
+              <button class="btn primary full" id="convertBtn">
+                <span id="convertLabel">Convert files</span>
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M5 12h14m0 0-5-5m5 5-5 5"/></svg>
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="historyView" class="hidden">
+        <div class="card history">
+          <div class="panel-head">
+            <h2>Conversion history</h2>
+
+            <button class="btn secondary" id="clearHistory">Clear history</button>
+          </div>
+
+          <div id="historyList" class="result-list">
+            <div class="empty">No conversions yet.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal hidden" id="previewModal" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title">
+          <h2 id="previewTitle">File preview</h2>
+          <p id="previewSub">Preview is rendered locally.</p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="icon-btn" id="toggleFullscreen" aria-label="Full screen" title="Full screen">
+            <svg viewBox="0 0 24 24" class="icon expand" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            <svg viewBox="0 0 24 24" class="icon shrink" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+          </button>
+
+          <button class="icon-btn" id="closePreview" aria-label="Close preview" title="Close">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="preview-content" id="previewContent"></div>
+
+      <div class="modal-foot">
+        <button class="btn secondary" id="previewOpen">Open file</button>
+        <button class="btn primary" id="previewPrint">Print…</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

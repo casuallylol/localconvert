@@ -1,0 +1,57 @@
+{
+  "name": "localconvert",
+  "version": "1.0.0",
+  "description": "Offline batch image and document conversion",
+  "main": "src/main.js",
+  "author": "LocalConvert",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "setup:lo": "node scripts/setup-libreoffice.js",
+    "test:lo": "node scripts/test-libreoffice.js",
+    "predist": "node scripts/check-vendor.js",
+    "dist": "electron-builder --win nsis"
+  },
+  "dependencies": {
+    "heic-convert": "^2.1.0",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.34.3"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.localconvert.desktop",
+    "productName": "LocalConvert",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/sharp/**/*",
+      "node_modules/@img/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/libreoffice",
+        "to": "libreoffice"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "LocalConvert-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
