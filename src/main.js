@@ -21,7 +21,10 @@ const {
   locateLibreOffice
 } = require("./converters");
 
+const { createHistoryStore } = require("./history-store");
+
 let mainWindow;
+let historyStore;
 
 function createWindow() {
   Menu.setApplicationMenu(null);
@@ -83,6 +86,10 @@ function enableDevTools(win) {
 }
 
 app.whenReady().then(() => {
+  historyStore = createHistoryStore(
+    path.join(app.getPath("userData"), "conversion-history.json")
+  );
+
   const engine = locateLibreOffice();
 
   console.log(
@@ -200,7 +207,28 @@ ipcMain.handle("convert-batch", async (_event, payload) => {
     }
   }
 
+  // Save every result (successes and failures) so the history is still
+  // there the next time the app is opened.
+  const time = Date.now();
+
+  for (const result of results) {
+    result.time = time;
+    result.targetFormat = targetFormat;
+  }
+
+  try {
+    historyStore.add(results);
+  } catch (error) {
+    console.error("[LocalConvert] Could not save history:", error.message);
+  }
+
   return results;
+});
+
+ipcMain.handle("get-history", () => historyStore.all());
+
+ipcMain.handle("clear-history", () => {
+  historyStore.clear();
 });
 
 ipcMain.handle("preview-file", async (_event, filePath) => {

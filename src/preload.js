@@ -14,5 +14,9 @@ contextBridge.exposeInMainWorld("localConvert", {
   getDocumentEngineStatus: () =>
     ipcRenderer.invoke("get-document-engine-status"),
 
+  getHistory: () => ipcRenderer.invoke("get-history"),
+
+  clearHistory: () => ipcRenderer.invoke("clear-history"),
+
   getPathForFile: file => webUtils.getPathForFile(file)
 });
